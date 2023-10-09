@@ -27,6 +27,19 @@ export const useMemberStore = defineStore(
   },
   // TODO: 持久化
   {
-    persist: true,
+    // 在网页端可以，在微信小程序端不生效
+    // persist: true,
+
+    // 配置小程序端的状态持久化
+    persist: {
+      storage: {
+        getItem(key) {
+          return uni.getStorageSync(key)
+        },
+        setItem(key, value) {
+          uni.setStorageSync(key, value)
+        },
+      },
+    },
   },
 )
