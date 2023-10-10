@@ -3,6 +3,8 @@
 </script>
 
 <template>
+  <XtxSwiper />
+
   <view class="category">category</view>
 </template>
 
