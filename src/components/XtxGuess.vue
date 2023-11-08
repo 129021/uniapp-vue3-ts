@@ -1,15 +1,48 @@
 <script setup lang="ts">
 import { getHomeGoodsGuessLikeAPI } from '@/services/home'
-import { onMounted } from 'vue'
+import type { GuessItem } from '@/types/home'
+import { onMounted, ref } from 'vue'
+import type { PageParams } from '@/types/global'
 
 //
+
+const pageParams: Required<PageParams> = {
+  page: 1,
+  pageSize: 10,
+}
+
+// 页码是否加载完成的标志
+const isPageFinish = ref(false)
+const GuessList = ref<GuessItem[]>([])
 const getHomeGoodsGuessLikeData = async () => {
+  if (isPageFinish.value) {
+    return uni.showToast({ title: '没有更多数据啦' })
+  }
   const res = await getHomeGoodsGuessLikeAPI()
   console.log('getHomeGoodsGuessLikeAPI:', res)
+  // GuessList.value = res.result.items
+  GuessList.value.push(...res.result.items)
+  if (pageParams.page < res.result.pages) {
+    pageParams.page++
+  } else {
+    isPageFinish.value = true
+  }
 }
 
 onMounted(() => {
   getHomeGoodsGuessLikeData()
+})
+
+// 下拉刷新重置页面
+const resetData = () => {
+  pageParams.page = 1
+  GuessList.value = []
+  isPageFinish.value = false
+}
+
+defineExpose({
+  getMore: getHomeGoodsGuessLikeData,
+  resetData,
 })
 </script>
 
@@ -21,23 +54,19 @@ onMounted(() => {
   <view class="guess">
     <navigator
       class="guess-item"
-      v-for="item in 10"
-      :key="item"
+      v-for="item in GuessList"
+      :key="item.id"
       :url="`/pages/goods/goods?id=4007498`"
     >
-      <image
-        class="image"
-        mode="aspectFill"
-        src="https://pcapi-xiaotuxian-front-devtest.itheima.net/miniapp/uploads/goods_big_1.jpg"
-      ></image>
-      <view class="name"> 德国THORE男表 超薄手表男士休闲简约夜光石英防水直径40毫米 </view>
+      <image class="image" mode="aspectFill" :src="item.picture"></image>
+      <view class="name"> {{ item.name }} </view>
       <view class="price">
         <text class="small">¥</text>
-        <text>899.00</text>
+        <text>{{ item.price }}</text>
       </view>
     </navigator>
   </view>
-  <view class="loading-text"> 正在加载... </view>
+  <view class="loading-text"> {{ isPageFinish ? '没有更多数据啦' : '正在加载...' }} </view>
 </template>
 
 <style lang="scss">

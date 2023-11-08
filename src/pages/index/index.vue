@@ -6,6 +6,14 @@ import CategoryPanel from './components/CategoryPanel.vue'
 import HotPanel from './components/HotPanel.vue'
 import { getHomeBannerAPI, getCategoryMutliAPI, getHotMutliAPI } from '@/services/home'
 import type { BannerItem, CategoryItem, HotItem } from '@/types/home'
+import type { XtxGuessInstance } from '@/types/component'
+
+const guessRef = ref<XtxGuessInstance>()
+
+const onScrolltolower = () => {
+  // console.log('我触底拉');
+  guessRef.value.getMore()
+}
 
 const homeBannerData = ref<BannerItem[]>([])
 const getHomeBannerData = async () => {
@@ -34,15 +42,37 @@ onLoad(() => {
   getHotPanelData()
 })
 //
+
+// 下拉刷新
+const isRefresher = ref(false)
+const onRefresherrefresh = async () => {
+  isRefresher.value = true
+  // console.log('下拉刷新了');
+  // 重置猜你喜欢的数据
+  guessRef.value?.resetData()
+  await Promise.all([
+    getHomeBannerData(),
+    getCategoryPanelData(),
+    getHotPanelData(),
+    guessRef.value?.getMore(),
+  ])
+  isRefresher.value = false
+}
 </script>
 
 <template>
   <CustomNavBar></CustomNavBar>
-  <scroll-view scroll-y>
+  <scroll-view
+    scroll-y
+    @scrolltolower="onScrolltolower"
+    refresher-enabled
+    @refresherrefresh="onRefresherrefresh"
+    :refresher-triggered="isRefresher"
+  >
     <XtxSwiper :list="homeBannerData" />
     <CategoryPanel :list="categoryPanelData" />
     <HotPanel :list="hotPanelData" />
-    <XtxGuess />
+    <XtxGuess ref="guessRef" />
   </scroll-view>
 </template>
 

@@ -30,14 +30,20 @@ export type HotItem = {
   type: number
 }
 
+/** 猜你喜欢-商品类型 */
 export type GuessItem = {
-  count: number
+  /** 商品描述 */
+  desc: string
+  /** 商品折扣 */
+  discount: number
   /** id */
-  items: array
-  /** 图片链接 */
-  page: array
-  target: string
-  icon: string
-  title: string
-  type: number
+  id: string
+  /** 商品名称 */
+  name: string
+  /** 商品已下单数量 */
+  orderNum: number
+  /** 商品图片 */
+  picture: string
+  /** 商品价格 */
+  price: number
 }
