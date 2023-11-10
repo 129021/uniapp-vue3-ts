@@ -6,6 +6,8 @@ import type { CategoryTopItem } from '@/types/category'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import { computed } from 'vue'
+import pageSkeleton from './components/pageSkeleton.vue'
+
 const bannerList = ref<BannerItem[]>([])
 const getBannerData = async () => {
   const res = await getHomeBannerAPI(2)
@@ -21,9 +23,12 @@ const getCategoryTopList = async () => {
 
 // 高亮下标
 const activeIndex = ref(0)
-onLoad(() => {
-  getBannerData()
-  getCategoryTopList()
+
+const isFinished = ref(false)
+
+onLoad(async () => {
+  await Promise.all([getBannerData(), getCategoryTopList()])
+  isFinished.value = true
 })
 
 // 二级分类
@@ -35,7 +40,7 @@ const subCategoryList = computed(() => {
 </script>
 
 <template>
-  <view class="viewport">
+  <view class="viewport" v-if="isFinished">
     <!-- 搜索框 -->
     <view class="search">
       <view class="input">
@@ -86,6 +91,7 @@ const subCategoryList = computed(() => {
       </scroll-view>
     </view>
   </view>
+  <pageSkeleton v-else></pageSkeleton>
 </template>
 
 <style lang="scss">

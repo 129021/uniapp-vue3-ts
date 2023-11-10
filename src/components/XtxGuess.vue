@@ -20,7 +20,6 @@ const getHomeGoodsGuessLikeData = async () => {
   }
   const res = await getHomeGoodsGuessLikeAPI()
   console.log('getHomeGoodsGuessLikeAPI:', res)
-  // GuessList.value = res.result.items
   GuessList.value.push(...res.result.items)
   if (pageParams.page < res.result.pages) {
     pageParams.page++
